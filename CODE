@@ -1,0 +1,64 @@
+#include <math.h> //math and SPI should be already in your libraries folder by default, don’t worry about these
+
+#include <SPI.h>
+
+#include <Adafruit_GFX.h>
+//we downloaded this just now
+
+#include <Adafruit_PCD8544.h>
+
+Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3); //digital pins used to connect to LCD
+
+#define XPOS 0
+
+#define YPOS 1
+const int B = 4275;               // B value of the thermistor
+const int R0 = 100000;            // R0 = 100k
+const int pinTempSensor = A0;     // Grove - Temperature Sensor connect to A0
+ 
+#if defined(ARDUINO_ARCH_AVR)
+#define debug  Serial
+#elif defined(ARDUINO_ARCH_SAMD) ||  defined(ARDUINO_ARCH_SAM)
+#define debug  SerialUSB
+#else
+#define debug  Serial
+#endif
+
+float sensorPin = A0; //your sensor pin, you can change this if you want
+
+void setup()
+
+{
+
+Serial.begin(9600);
+
+display.begin();
+
+}
+
+void loop()
+
+{
+  int a = analogRead(pinTempSensor);
+ 
+    float R = 1023.0/a-1.0;
+    R = R0*R;
+ 
+    float temperature = 1.0/(log(R/R0)/B+1/298.15)-273.15; // convert to temperature via datasheet
+ 
+    Serial.print("temperature = ");
+    Serial.println(temperature);
+
+display.clearDisplay(); //clears display each time the loop starts over
+
+display.setCursor(0,0);
+
+display.print("TEMPERATURE(C):"); //this will be written on the LCD
+
+display.println(temperature);
+
+display.display();
+
+delay(200);
+
+}
